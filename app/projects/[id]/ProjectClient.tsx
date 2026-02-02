@@ -1,12 +1,41 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ArrowLeft, ExternalLink, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ExternalLink, ChevronRight, X, ChevronLeft as LeftIcon, ChevronRight as RightIcon } from "lucide-react";
 import Link from "next/link";
 import { Section } from "@/components/Section";
 import { Project } from "@/types/project";
 
 export default function ProjectClient({ project }: { project: Project }) {
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const openViewer = (image: string, index: number) => {
+        setSelectedImage(image);
+        setCurrentIndex(index);
+        document.body.style.overflow = "hidden";
+    };
+
+    const closeViewer = () => {
+        setSelectedImage(null);
+        document.body.style.overflow = "auto";
+    };
+
+    const nextImage = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const nextIdx = (currentIndex + 1) % project.screenshots.length;
+        setCurrentIndex(nextIdx);
+        setSelectedImage(project.screenshots[nextIdx]);
+    };
+
+    const prevImage = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        const prevIdx = (currentIndex - 1 + project.screenshots.length) % project.screenshots.length;
+        setCurrentIndex(prevIdx);
+        setSelectedImage(project.screenshots[prevIdx]);
+    };
+
     return (
         <main className="min-h-screen bg-black text-white">
             {/* Navigation */}
@@ -25,7 +54,10 @@ export default function ProjectClient({ project }: { project: Project }) {
                             animate={{ opacity: 1, x: 0 }}
                             className="sticky top-10"
                         >
-                            <div className="w-24 h-24 bg-gray-900 rounded-2xl mb-6 flex items-center justify-center border border-gray-800 shadow-[0_0_20px_rgba(0,0,255,0.1)] overflow-hidden">
+                            <div
+                                className="w-24 h-24 bg-gray-900 rounded-2xl mb-6 flex items-center justify-center border border-gray-800 shadow-[0_0_20px_rgba(0,0,255,0.1)] overflow-hidden cursor-pointer hover:border-[#00FF41]/50 transition-colors"
+                                onClick={() => project.icon && openViewer(project.icon, -1)}
+                            >
                                 {project.icon ? (
                                     <img src={project.icon} alt={project.title} className="w-full h-full object-cover" />
                                 ) : (
@@ -88,8 +120,12 @@ export default function ProjectClient({ project }: { project: Project }) {
                                 </h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {project.screenshots.map((sc, i) => (
-                                        <div key={i} className="aspect-[9/16] bg-gray-900 rounded-xl border border-gray-800 flex items-center justify-center text-gray-700 text-sm italic overflow-hidden">
-                                            <img src={sc} alt={`${project.title} screenshot ${i + 1}`} className="w-full h-full object-cover"
+                                        <div
+                                            key={i}
+                                            className="aspect-[9/16] bg-gray-900 rounded-xl border border-gray-800 flex items-center justify-center text-gray-700 text-sm italic overflow-hidden cursor-pointer hover:border-[#00FF41]/30 transition-all hover:scale-[1.02]"
+                                            onClick={() => openViewer(sc, i)}
+                                        >
+                                            <img src={sc} alt={`${project.title} screenshot ${i + 1}`} className="w-full h-full object-cover shadow-2xl"
                                                 onError={(e) => {
                                                     const target = e.target as HTMLImageElement;
                                                     target.style.display = 'none';
@@ -123,6 +159,80 @@ export default function ProjectClient({ project }: { project: Project }) {
             <footer className="py-20 text-center border-t border-gray-900 mt-20">
                 <p className="text-gray-600 text-sm">© 2026 DiskFactory | {project.title}</p>
             </footer>
+
+            {/* Image Viewer Modal */}
+            <AnimatePresence>
+                {selectedImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={closeViewer}
+                        className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center p-4 md:p-10 cursor-zoom-out"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="relative max-w-5xl w-full h-full flex items-center justify-center"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <img
+                                src={selectedImage}
+                                alt="Gallery View"
+                                className="max-w-full max-h-full object-contain shadow-[0_0_50px_rgba(0,255,65,0.1)] rounded-lg"
+                            />
+
+                            {/* Controls */}
+                            <button
+                                onClick={closeViewer}
+                                className="absolute top-0 right-0 p-4 text-white hover:text-[#00FF41] transition-colors z-[60]"
+                            >
+                                <X size={32} />
+                            </button>
+
+                            {currentIndex !== -1 && project.screenshots.length > 1 && (
+                                <>
+                                    {/* Number Indicator */}
+                                    <div className="absolute top-4 left-4 px-3 py-1 bg-black/50 backdrop-blur-md rounded-full text-xs font-mono text-white border border-white/10">
+                                        {currentIndex + 1} / {project.screenshots.length}
+                                    </div>
+
+                                    {/* Arrow Navigation */}
+                                    <button
+                                        onClick={prevImage}
+                                        className="absolute left-0 p-4 text-white hover:text-[#00FF41] transition-colors md:-left-16"
+                                    >
+                                        <LeftIcon size={48} />
+                                    </button>
+                                    <button
+                                        onClick={nextImage}
+                                        className="absolute right-0 p-4 text-white hover:text-[#00FF41] transition-colors md:-right-16"
+                                    >
+                                        <RightIcon size={48} />
+                                    </button>
+
+                                    {/* Dot Indicators */}
+                                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 flex gap-2 p-2">
+                                        {project.screenshots.map((_, i) => (
+                                            <button
+                                                key={i}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setCurrentIndex(i);
+                                                    setSelectedImage(project.screenshots[i]);
+                                                }}
+                                                className={`w-1.5 h-1.5 rounded-full transition-all ${i === currentIndex ? "bg-[#00FF41] w-4" : "bg-gray-600 hover:bg-gray-400"
+                                                    }`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </main>
     );
 }

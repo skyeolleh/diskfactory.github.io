@@ -16,8 +16,8 @@ export const projects: Project[] = [
         },
         screenshots: [
             "/images/pj1/img1.jpg",
-            "/images/pj1/sc2.png",
-            "/images/pj1/sc3.png"
+            // "/images/pj1/sc2.png",
+            // "/images/pj1/sc3.png"
         ],
         features: [
             "쉽고 직관적인 플레이",

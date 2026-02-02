@@ -50,12 +50,12 @@ export default function Home() {
           transition={{ delay: 0.6 }}
           className="flex gap-4"
         >
-          <button className="px-8 py-4 bg-[#00FF41] text-black font-bold rounded-full hover:scale-105 transition-transform flex items-center gap-2">
+          {/* <button className="px-8 py-4 bg-[#00FF41] text-black font-bold rounded-full hover:scale-105 transition-transform flex items-center gap-2">
             게임 보러가기 <ArrowRight size={20} />
           </button>
           <button className="px-8 py-4 border border-gray-700 rounded-full hover:bg-gray-900 transition-colors">
             소개
-          </button>
+          </button> */}
         </motion.div>
       </Section>
 
@@ -98,6 +98,7 @@ export default function Home() {
                   {project.description}
                 </p>
 
+                {/* 
                 {project.links && Object.keys(project.links).length > 0 && (
                   <div className="mt-auto pt-6 border-t border-gray-900 flex items-center justify-between">
                     <div className="flex gap-2">
@@ -122,6 +123,7 @@ export default function Home() {
                     </span>
                   </div>
                 )}
+                */}
               </div>
             </Link>
           ))}
