@@ -24,6 +24,9 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
+env:
+  NEXT_TELEMETRY_DISABLED: 1
+
 jobs:
   # Build job
   build:
@@ -66,11 +69,11 @@ jobs:
         with:
           path: |
             .next/cache
-          # Generate a new cache whenever packages or source files change.
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          # If source files changed but packages didn't, rebuild from a prior cache.
+          # 패키지 매니저의 락파일을 기본 키로 사용하여 불필요한 캐시 미스 방지
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}
+          # 소스 변경 시에도 기존 캐시를 활용할 수 있도록 복원 키 설정
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
+            ${{ runner.os }}-nextjs-
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Build with Next.js
