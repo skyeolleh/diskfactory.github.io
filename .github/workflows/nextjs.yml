@@ -57,13 +57,7 @@ jobs:
           node-version: "20"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
       - name: Setup Pages
-        uses: actions/configure-pages@v4
-        with:
-          # Automatically inject basePath in your Next.js config file, and a custom
-          # domain condition if needed.
-          # When deploying to a personal page (https://<user>.github.io/), the path is /
-          # Set this to your repository name if it's a project page (https://<user>.github.io/<repo>/)
-          static_site_generator: next
+        uses: actions/configure-pages@v5
       - name: Restore cache
         uses: actions/cache@v4
         with:
